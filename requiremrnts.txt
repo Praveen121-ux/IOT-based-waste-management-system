@@ -1,0 +1,16 @@
+# Hardware-based project (Arduino IDE)
+
+Arduino IDE
+ESP8266 Board Package (if NodeMCU used)
+
+# Libraries used
+HX711
+Servo
+LiquidCrystal_I2C
+SoftwareSerial
+
+# Sensors (no install needed but listed)
+Ultrasonic Sensor (HC-SR04)
+MQ-6 Gas Sensor
+Load Cell + HX711
+IR Sensor
