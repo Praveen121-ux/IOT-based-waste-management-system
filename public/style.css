@@ -1,0 +1,180 @@
+/* ================================
+   BASE COLORS
+================================ */
+:root{
+  --accent:#0d6efd;
+  --ok:#28a745;
+  --warn:#ffc107;
+  --danger:#dc3545;
+  --muted:#6c757d;
+}
+
+/* ================================
+   BODY + BACKGROUND
+================================ */
+body{
+  font-family: 'Poppins', sans-serif;
+
+  /* background image */
+  background-image: url("iot.jpg");
+
+  /* full width background */
+  background-size: 100% 750px;
+  background-repeat: no-repeat;
+  background-position: top center;
+
+  margin: 0;
+  color: #111827;
+  position: relative;
+}
+
+/* soft overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.55);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ================================
+   CARDS
+================================ */
+.card{
+  background: rgba(255,255,255,0.90);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+}
+
+/* ================================
+   NAVBAR
+================================ */
+.navbar{
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.92) !important;
+  backdrop-filter: blur(3px);
+}
+
+/* ================================
+   LAYOUT
+================================ */
+main.container{
+  max-width: 1200px;
+}
+
+.row.g-4{
+  margin-top: 18px;
+}
+
+/* ================================
+   METRIC CARDS
+================================ */
+.metric-card{
+  background: linear-gradient(
+      180deg,
+      rgba(13,110,253,0.03),
+      #ffffff
+  );
+  border: 1px solid rgba(13,110,253,0.06);
+  box-shadow: 0 8px 20px rgba(13,110,253,0.03);
+}
+
+.metric-value{
+  font-size: 44px;
+  font-weight: 800;
+  color: #0b1326;
+}
+
+/* ================================
+   GAUGE SIZE
+================================ */
+.gauge{
+  width: 86px;
+  height: 86px;
+}
+
+/* ================================
+   STATUS TEXT
+================================ */
+#fillStatus,
+#gasStatus{
+  font-size: 14px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+/* ================================
+   ALERT SECTION
+================================ */
+.section-card{
+  padding: 20px;
+}
+
+.section-title{
+  font-size: 18px;
+  font-weight:600;
+  margin-bottom: 12px;
+}
+
+/* alert list items */
+#alertsList .list-group-item{
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+/* danger alert */
+.alert-item-danger{
+  background:#fff1f0;
+  border-left:6px solid var(--danger);
+  color:#6d0f16;
+  padding:12px;
+}
+
+/* warning alert */
+.alert-item-warn{
+  background:#fff9ec;
+  border-left:6px solid var(--warn);
+  color:#6d4b00;
+  padding:12px;
+}
+
+/* normal alert */
+.alert-item-ok{
+  background:#f0fff4;
+  border-left:6px solid var(--ok);
+  color:#0b6623;
+  padding:12px;
+}
+
+/* ================================
+   HISTORY TABLE
+================================ */
+#historyTable td,
+#historyTable th{
+  vertical-align: middle;
+  background: rgba(255,255,255,0.92);
+}
+
+/* ================================
+   BUTTONS
+================================ */
+#refreshBtn{
+  width: 90px;
+}
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+@media (max-width:767px){
+
+  .metric-value{
+    font-size:36px;
+  }
+
+  .gauge{
+    width:64px;
+    height:64px;
+  }
+
+}
