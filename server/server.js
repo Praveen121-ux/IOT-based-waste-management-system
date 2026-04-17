@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const axios = require('axios');
+
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
 admin.initializeApp({
@@ -13,7 +14,9 @@ admin.initializeApp({
 const db = admin.database();
 const app = express();
 
+// ✅ STATIC FRONTEND
 app.use(express.static("public"));
+
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -22,10 +25,7 @@ const SMS_API_KEY = "YOUR_API_KEY";
 const ALERT_NUMBER = "9080865052";
 // -------------------------------------------------
 
-// Internal alert state
 const alertState = {};
-// alertState["BIN_001"] = { fill:false, gas:false };
-
 const lastAlertMessage = {};
 
 // -------------------------------------------------
@@ -33,7 +33,6 @@ const lastAlertMessage = {};
 // -------------------------------------------------
 async function sendSMS(message) {
   try {
-
     await axios.post(
       "https://www.fast2sms.com/dev/bulkV2",
       {
@@ -52,7 +51,6 @@ async function sendSMS(message) {
     return "sent";
 
   } catch (e) {
-
     console.log("SMS FAILED:", e.message);
     return "failed";
   }
@@ -62,11 +60,9 @@ async function sendSMS(message) {
 // MANUAL SMS API
 // -------------------------------------------------
 app.post('/api/manual_sms', async (req, res) => {
-
   try {
 
     const bin_id = "BIN_001";
-
     const lastMsg = lastAlertMessage[bin_id];
 
     if (!lastMsg) {
@@ -83,9 +79,7 @@ app.post('/api/manual_sms', async (req, res) => {
     return res.json({ ok: status === "sent", smsStatus: status });
 
   } catch (err) {
-
     return res.json({ ok:false, smsStatus:"failed" });
-
   }
 });
 
@@ -102,7 +96,6 @@ app.post('/api/data', async (req, res) => {
     if (!bin_id)
       return res.status(400).json({ error: "missing bin_id" });
 
-    // Create bin state
     if (!alertState[bin_id]) {
       alertState[bin_id] = { fill:false, gas:false };
     }
@@ -110,20 +103,19 @@ app.post('/api/data', async (req, res) => {
     const state = alertState[bin_id];
     const binRef = db.ref(`bins/${bin_id}`);
 
-    // Preserve previous sms status
     const previousSnap = await binRef.once("value");
     const prevSmsStatus = previousSnap.val()?.smsStatus || "none";
 
     const payload = {
-
       fill_level: p.fill_level,
       gas_level: p.gas_level,
       timestamp: Date.now(),
       smsStatus: prevSmsStatus
-
     };
 
-    await binRef.set(payload);
+    // 🔥 FIX: use update instead of set
+    await binRef.update(payload);
+
     await db.ref(`history/${bin_id}`).push(payload);
 
     console.log("DATA RECEIVED:", payload);
@@ -146,15 +138,16 @@ app.post('/api/data', async (req, res) => {
     if (payload.fill_level < 50)
       state.fill = false;
 
-
     // -------------------------
     // GAS ALERT
     // -------------------------
     if (payload.gas_level >= 150 && !state.gas) {
 
-      alertMsg = `ALERT! Bin ${bin_id} GAS HIGH: ${payload.gas_level}`;
+      const gasMsg = `ALERT! Bin ${bin_id} GAS HIGH: ${payload.gas_level}`;
 
-      smsStatus = await sendSMS(alertMsg);
+      smsStatus = await sendSMS(gasMsg);
+
+      alertMsg = alertMsg ? alertMsg + " | " + gasMsg : gasMsg;
 
       state.gas = true;
     }
@@ -162,38 +155,28 @@ app.post('/api/data', async (req, res) => {
     if (payload.gas_level < 80)
       state.gas = false;
 
-
-    // Store last alert message
     if (alertMsg)
       lastAlertMessage[bin_id] = alertMsg;
 
-
-    // Update SMS status in firebase
     if (smsStatus !== "none") {
 
       await binRef.update({
-
         smsStatus: smsStatus,
         smsTimestamp: Date.now()
-
       });
-
     }
 
     return res.json({ ok:true, smsStatus });
 
   } catch (err) {
-
     console.error(err);
-
     return res.status(500).json({ error: "server error" });
-
   }
 
 });
 
+// -------------------------------------------------
 app.get('/', (req,res)=>res.send("Smart Waste API Running"));
 
-const PORT = process.env.PORT || 3000;
-
+const PORT = process.env.PORT || 10000;
 app.listen(PORT,()=>console.log("Server running on port",PORT));
