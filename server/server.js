@@ -13,6 +13,7 @@ admin.initializeApp({
 const db = admin.database();
 const app = express();
 
+app.use(express.static("public"));
 app.use(cors());
 app.use(bodyParser.json());
 
