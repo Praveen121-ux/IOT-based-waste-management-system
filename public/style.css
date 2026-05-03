@@ -1,6 +1,6 @@
-/* ================================
-   BASE COLORS
-================================ */
+
+
+/* === Base === */
 :root{
   --accent:#0d6efd;
   --ok:#28a745;
@@ -9,17 +9,15 @@
   --muted:#6c757d;
 }
 
-/* ================================
-   BODY + BACKGROUND
-================================ */
+/* === Background Image (Full Width + Reduced Height) === */
 body{
   font-family: 'Poppins', sans-serif;
 
-  /* background image */
+  /* Your background image */
   background-image: url("iot.jpg");
 
-  /* full width background */
-  background-size: 100% 750px;
+  /* FULL WIDTH — reduced height look */
+  background-size: 100% 750px;     /* change 320 to 250 or 400 if you want */
   background-repeat: no-repeat;
   background-position: top center;
 
@@ -28,153 +26,96 @@ body{
   position: relative;
 }
 
-/* soft overlay */
+/* Soft overlay to blend image */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.55);  /* 0.55 = brighter, 0.35 = darker */
   pointer-events: none;
   z-index: -1;
 }
 
-/* ================================
-   CARDS
-================================ */
-.card{
+/* === Cards Stay Clean / Bright === */
+.card {
   background: rgba(255,255,255,0.90);
   backdrop-filter: blur(4px);
   border-radius: 12px;
 }
 
-/* ================================
-   NAVBAR
-================================ */
-.navbar{
+/* Navbar */
+.navbar { 
   border-bottom: 1px solid rgba(0,0,0,0.06);
   background: rgba(255,255,255,0.92) !important;
   backdrop-filter: blur(3px);
 }
 
-/* ================================
-   LAYOUT
-================================ */
-main.container{
-  max-width: 1200px;
-}
+/* Container spacing */
+main.container { max-width: 1200px; }
+.row.g-4 { margin-top: 18px; }
 
-.row.g-4{
-  margin-top: 18px;
-}
-
-/* ================================
-   METRIC CARDS
-================================ */
-.metric-card{
-  background: linear-gradient(
-      180deg,
-      rgba(13,110,253,0.03),
-      #ffffff
-  );
+/* Metric card */
+.metric-card {
+  background: linear-gradient(180deg, rgba(13,110,253,0.03), #ffffff);
   border: 1px solid rgba(13,110,253,0.06);
   box-shadow: 0 8px 20px rgba(13,110,253,0.03);
 }
-
-.metric-value{
+.metric-value {
   font-size: 44px;
   font-weight: 800;
   color: #0b1326;
 }
 
-/* ================================
-   GAUGE SIZE
-================================ */
-.gauge{
-  width: 86px;
-  height: 86px;
-}
+/* Gauges */
+.gauge { width: 86px; height: 86px; }
 
-/* ================================
-   STATUS TEXT
-================================ */
-#fillStatus,
-#gasStatus{
+/* Status */
+#fillStatus,#gasStatus,#weightStatus {
   font-size: 14px;
   margin-top: 8px;
   color: var(--muted);
 }
 
-/* ================================
-   ALERT SECTION
-================================ */
-.section-card{
-  padding: 20px;
-}
+/* Alerts */
+.section-card { padding: 20px; }
+.section-title { font-size: 18px; font-weight:600; margin-bottom: 12px; }
 
-.section-title{
-  font-size: 18px;
-  font-weight:600;
-  margin-bottom: 12px;
-}
-
-/* alert list items */
-#alertsList .list-group-item{
-  border-radius: 8px;
+#alertsList .list-group-item {
+  border-radius: 8px; 
   margin-bottom: 10px;
 }
 
-/* danger alert */
-.alert-item-danger{
-  background:#fff1f0;
-  border-left:6px solid var(--danger);
-  color:#6d0f16;
-  padding:12px;
+.alert-item-danger { 
+  background: #fff1f0; 
+  border-left: 6px solid var(--danger); 
+  color: #6d0f16; 
+  padding: 12px; 
+}
+.alert-item-warn { 
+  background: #fff9ec; 
+  border-left: 6px solid var(--warn); 
+  color: #6d4b00; 
+  padding: 12px; 
+}
+.alert-item-ok { 
+  background: #f0fff4; 
+  border-left: 6px solid var(--ok); 
+  color: #0b6623; 
+  padding: 12px; 
 }
 
-/* warning alert */
-.alert-item-warn{
-  background:#fff9ec;
-  border-left:6px solid var(--warn);
-  color:#6d4b00;
-  padding:12px;
-}
-
-/* normal alert */
-.alert-item-ok{
-  background:#f0fff4;
-  border-left:6px solid var(--ok);
-  color:#0b6623;
-  padding:12px;
-}
-
-/* ================================
-   HISTORY TABLE
-================================ */
-#historyTable td,
-#historyTable th{
+/* History table */
+#historyTable td, #historyTable th { 
   vertical-align: middle;
   background: rgba(255,255,255,0.92);
 }
 
-/* ================================
-   BUTTONS
-================================ */
-#refreshBtn{
-  width: 90px;
-}
+/* Buttons */
+#refreshBtn{ width: 90px; }
+#snoozeSmsBtn { font-size: 13px; }
 
-/* ================================
-   MOBILE RESPONSIVE
-================================ */
-@media (max-width:767px){
-
-  .metric-value{
-    font-size:36px;
-  }
-
-  .gauge{
-    width:64px;
-    height:64px;
-  }
-
+/* Responsive */
+@media (max-width: 767px){
+  .metric-value { font-size: 36px; }
+  .gauge { width: 64px; height:64px; }
 }
