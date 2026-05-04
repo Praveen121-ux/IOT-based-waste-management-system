@@ -28,10 +28,15 @@ const EMAIL_PASS = process.env.EMAIL_PASS;
 const ALERT_EMAIL = "praveenkumaripl20@gmail.com"; // change this
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  requireTLS: true,
+  family: 4, // 🔥 forces IPv4 (fixes ENETUNREACH)
+
   auth: {
     user: EMAIL_USER,
-    pass: EMAIL_PASS
+    pass: EMAIL_PASS.trim()
   }
 });
 // -------------------------------------------------
