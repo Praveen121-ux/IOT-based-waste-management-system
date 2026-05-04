@@ -25,7 +25,7 @@ const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
 
 // Receiver email
-const ALERT_EMAIL = "yourmail@gmail.com"; // change this
+const ALERT_EMAIL = "praveenkumaripl20@gmail.com"; // change this
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
