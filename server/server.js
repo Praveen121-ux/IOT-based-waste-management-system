@@ -27,13 +27,15 @@ const EMAIL_PASS = process.env.EMAIL_PASS;
 // Receiver email
 const ALERT_EMAIL = "praveenkumaripl20@gmail.com"; // change this
 
+const dns = require("dns");
+
+dns.setDefaultResultOrder("ipv4first"); // 🔥 CRITICAL FIX
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   requireTLS: true,
-
-  family: 4, // 🔥 FORCE IPv4 (CRITICAL)
 
   auth: {
     user: EMAIL_USER,
@@ -45,7 +47,6 @@ const transporter = nodemailer.createTransport({
   },
 
   connectionTimeout: 10000,
-  greetingTimeout: 10000,
   socketTimeout: 10000
 });
 // -------------------------------------------------
