@@ -32,12 +32,21 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   requireTLS: true,
-  family: 4, // 🔥 forces IPv4 (fixes ENETUNREACH)
+
+  family: 4, // 🔥 FORCE IPv4 (CRITICAL)
 
   auth: {
     user: EMAIL_USER,
     pass: EMAIL_PASS.trim()
-  }
+  },
+
+  tls: {
+    rejectUnauthorized: false
+  },
+
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000
 });
 // -------------------------------------------------
 
