@@ -21,7 +21,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // -------------------------------------------------
-const SMS_API_KEY = "YOUR_API_KEY";
+const SMS_API_KEY = "nIaGA14gC3S8yiUKwQhtFxYLbvdW20mOXuNMprDszH7klf6cj91d03mIMZuUhHN7tsa9FDjW4f2LSAcB";
 const ALERT_NUMBER = "9080865052";
 // -------------------------------------------------
 
@@ -36,7 +36,7 @@ async function sendSMS(message) {
     await axios.post(
       "https://www.fast2sms.com/dev/bulkV2",
       {
-        route: "v3",
+        route: "q",
         sender_id: "TXTIND",
         message,
         language: "english",
@@ -51,7 +51,7 @@ async function sendSMS(message) {
     return "sent";
 
   } catch (e) {
-    console.log("SMS FAILED:", e.message);
+    console.log("SMS FAILED FULL:", e.response?.data || e.message);
     return "failed";
   }
 }
@@ -111,7 +111,7 @@ app.post('/api/data', async (req, res) => {
       fill_level: Number(p.fill_level || 0),
       gas_level: Number(p.gas_level || 0),
       timestamp: Date.now(),
-      smsStatus: "none"
+      smsStatus: p.smsStatus || "none"
     };
 
     console.log("WRITING TO FIREBASE:", payload);
