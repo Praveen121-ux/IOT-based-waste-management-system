@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const cors = require('cors');
 const axios = require('axios');
+const nodemailer = require('nodemailer'); // ✅ NEW
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
@@ -14,50 +15,53 @@ admin.initializeApp({
 const db = admin.database();
 const app = express();
 
-// ✅ STATIC FRONTEND
 app.use(express.static("public"));
-
 app.use(cors());
 app.use(bodyParser.json());
 
 // -------------------------------------------------
-const SMS_API_KEY = "nIaGA14gC3S8yiUKwQhtFxYLbvdW20mOXuNMprDszH7klf6cj91d03mIMZuUhHN7tsa9FDjW4f2LSAcB";
-const ALERT_NUMBER = "9080865052";
+// ✅ EMAIL CONFIG (NEW)
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+// Receiver email
+const ALERT_EMAIL = "yourmail@gmail.com"; // change this
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: EMAIL_USER,
+    pass: EMAIL_PASS
+  }
+});
 // -------------------------------------------------
 
 const alertState = {};
 const lastAlertMessage = {};
 
 // -------------------------------------------------
-// SEND SMS
+// ✅ SEND EMAIL (REPLACES SMS)
 // -------------------------------------------------
-async function sendSMS(message) {
+async function sendEmail(message) {
   try {
-    await axios.post(
-      "https://www.fast2sms.com/dev/bulkV2",
-      {
-        route: "q",
-        sender_id: "TXTIND",
-        message,
-        language: "english",
-        numbers: ALERT_NUMBER
-      },
-      {
-        headers: { authorization: SMS_API_KEY }
-      }
-    );
+    await transporter.sendMail({
+      from: `"Smart Dustbin" <${EMAIL_USER}>`,
+      to: ALERT_EMAIL,
+      subject: "🚨 Dustbin Alert",
+      text: message
+    });
 
-    console.log("SMS SENT:", message);
+    console.log("EMAIL SENT:", message);
     return "sent";
 
   } catch (e) {
-    console.log("SMS FAILED FULL:", e.response?.data || e.message);
+    console.log("EMAIL FAILED:", e.message);
     return "failed";
   }
 }
 
 // -------------------------------------------------
-// MANUAL SMS API
+// MANUAL EMAIL RESEND
 // -------------------------------------------------
 app.post('/api/manual_sms', async (req, res) => {
   try {
@@ -69,7 +73,7 @@ app.post('/api/manual_sms', async (req, res) => {
       return res.json({ ok: false, smsStatus: "failed", error: "No previous alert" });
     }
 
-    const status = await sendSMS(lastMsg);
+    const status = await sendEmail(lastMsg);
 
     await db.ref(`bins/${bin_id}`).update({
       smsStatus: status,
@@ -85,7 +89,7 @@ app.post('/api/manual_sms', async (req, res) => {
 });
 
 // -------------------------------------------------
-// MAIN ESP32 DATA API (FIXED PART)
+// MAIN ESP32 DATA API
 // -------------------------------------------------
 app.post('/api/data', async (req, res) => {
 
@@ -114,11 +118,7 @@ app.post('/api/data', async (req, res) => {
       smsStatus: p.smsStatus || "none"
     };
 
-    console.log("WRITING TO FIREBASE:", payload);
-
-    // ✅ FIX: use update (not set)
     await binRef.update(payload);
-
     await db.ref(`history/${bin_id}`).push(payload);
 
     let alertMsg = null;
@@ -131,7 +131,7 @@ app.post('/api/data', async (req, res) => {
 
       alertMsg = `ALERT! Bin ${bin_id} Fill HIGH: ${payload.fill_level}%`;
 
-      smsStatus = await sendSMS(alertMsg);
+      smsStatus = await sendEmail(alertMsg);
 
       state.fill = true;
     }
@@ -147,7 +147,7 @@ app.post('/api/data', async (req, res) => {
 
       const gasMsg = `ALERT! Bin ${bin_id} GAS HIGH: ${payload.gas_level}`;
 
-      smsStatus = await sendSMS(gasMsg);
+      smsStatus = await sendEmail(gasMsg);
 
       alertMsg = alertMsg ? alertMsg + " | " + gasMsg : gasMsg;
 
