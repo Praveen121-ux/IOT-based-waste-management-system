@@ -2,7 +2,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
 const cors = require('cors');
-const axios = require('axios');
 
 const serviceAccount = JSON.parse(process.env.FIREBASE_KEY);
 
@@ -21,71 +20,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // -------------------------------------------------
-const SMS_API_KEY = "nIaGA14gC3S8yiUKwQhtFxYLbvdW20mOXuNMprDszH7klf6cj91d03mIMZuUhHN7tsa9FDjW4f2LSAcB";
-const ALERT_NUMBER = "9080865052";
-// -------------------------------------------------
-
 const alertState = {};
-const lastAlertMessage = {};
+// (kept structure, but not used for SMS now)
+// -------------------------------------------------
 
 // -------------------------------------------------
-// SEND SMS
-// -------------------------------------------------
-async function sendSMS(message) {
-  try {
-    await axios.post(
-      "https://www.fast2sms.com/dev/bulkV2",
-      {
-        route: "q",
-        sender_id: "TXTIND",
-        message,
-        language: "english",
-        numbers: ALERT_NUMBER
-      },
-      {
-        headers: { authorization: SMS_API_KEY }
-      }
-    );
-
-    console.log("SMS SENT:", message);
-    return "sent";
-
-  } catch (e) {
-    console.log("SMS FAILED FULL:", e.response?.data || e.message);
-    return "failed";
-  }
-}
-
-// -------------------------------------------------
-// MANUAL SMS API
-// -------------------------------------------------
-app.post('/api/manual_sms', async (req, res) => {
-  try {
-
-    const bin_id = "BIN_001";
-    const lastMsg = lastAlertMessage[bin_id];
-
-    if (!lastMsg) {
-      return res.json({ ok: false, smsStatus: "failed", error: "No previous alert" });
-    }
-
-    const status = await sendSMS(lastMsg);
-
-    await db.ref(`bins/${bin_id}`).update({
-      smsStatus: status,
-      smsTimestamp: Date.now()
-    });
-
-    return res.json({ ok: status === "sent", smsStatus: status });
-
-  } catch (err) {
-    console.error(err);
-    return res.json({ ok: false, smsStatus: "failed" });
-  }
-});
-
-// -------------------------------------------------
-// MAIN ESP32 DATA API (FIXED PART)
+// MAIN ESP32 DATA API (ONLY SMS REMOVED)
 // -------------------------------------------------
 app.post('/api/data', async (req, res) => {
 
@@ -110,29 +50,24 @@ app.post('/api/data', async (req, res) => {
     const payload = {
       fill_level: Number(p.fill_level || 0),
       gas_level: Number(p.gas_level || 0),
+      weight: Number(p.weight || 0), // ✅ added
       timestamp: Date.now(),
-      smsStatus: p.smsStatus || "none"
+      smsStatus: p.smsStatus || "none" // ✅ from ESP32
     };
 
     console.log("WRITING TO FIREBASE:", payload);
 
-    // ✅ FIX: use update (not set)
+    // ✅ same as your code
     await binRef.update(payload);
-
     await db.ref(`history/${bin_id}`).push(payload);
 
-    let alertMsg = null;
-    let smsStatus = "none";
-
     // -------------------------
+    // ALERT LOGIC (KEPT, but NO SMS)
+    // -------------------------
+
     // FILL ALERT
-    // -------------------------
     if (payload.fill_level >= 80 && !state.fill) {
-
-      alertMsg = `ALERT! Bin ${bin_id} Fill HIGH: ${payload.fill_level}%`;
-
-      smsStatus = await sendSMS(alertMsg);
-
+      console.log(`ALERT: Bin ${bin_id} Fill HIGH`);
       state.fill = true;
     }
 
@@ -140,17 +75,9 @@ app.post('/api/data', async (req, res) => {
       state.fill = false;
     }
 
-    // -------------------------
     // GAS ALERT
-    // -------------------------
     if (payload.gas_level >= 150 && !state.gas) {
-
-      const gasMsg = `ALERT! Bin ${bin_id} GAS HIGH: ${payload.gas_level}`;
-
-      smsStatus = await sendSMS(gasMsg);
-
-      alertMsg = alertMsg ? alertMsg + " | " + gasMsg : gasMsg;
-
+      console.log(`ALERT: Bin ${bin_id} GAS HIGH`);
       state.gas = true;
     }
 
@@ -158,18 +85,7 @@ app.post('/api/data', async (req, res) => {
       state.gas = false;
     }
 
-    if (alertMsg) {
-      lastAlertMessage[bin_id] = alertMsg;
-    }
-
-    if (smsStatus !== "none") {
-      await binRef.update({
-        smsStatus: smsStatus,
-        smsTimestamp: Date.now()
-      });
-    }
-
-    return res.json({ ok: true, smsStatus });
+    return res.json({ ok: true });
 
   } catch (err) {
     console.error("SERVER ERROR:", err);
