@@ -17,13 +17,13 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Firebase (compat) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
- <!-- NAV -->
+<!-- NAV -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
   <div class="container-fluid">
     <a class="navbar-brand fw-bold" href="#">Smart Waste — Dashboard</a>
@@ -36,110 +36,122 @@
   </div>
 </nav>
 
-  <!-- MAIN -->
-  <main class="container my-4">
-    <div class="row g-4">
+<!-- MAIN -->
+<main class="container my-4">
+  <div class="row g-4">
 
-      <!-- LEFT: Bin summary -->
-      <div class="col-lg-4">
-        <div class="card p-4 shadow-sm">
-          <h5 class="mb-1">Bin ID</h5>
-          <h2 id="binId">BIN_001</h2>
-          <p class="text-muted mb-3" id="lastSeen">Last update: --</p>
+    <!-- LEFT -->
+    <div class="col-lg-4">
+      <div class="card p-4 shadow-sm">
+        <h5 class="mb-1">Bin ID</h5>
+        <h2 id="binId">BIN_001</h2>
+        <p class="text-muted mb-3" id="lastSeen">Last update: --</p>
 
-          <!-- Big metrics -->
-          <div class="row gy-3">
-            <div class="col-12">
-              <div class="metric-card p-3 rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <small class="d-block text-muted">Fill Level</small>
-                    <div id="fillValue" class="metric-value">-- %</div>
-                  </div>
-                  <div class="gauge" id="fillGauge"></div>
+        <div class="row gy-3">
+
+          <!-- Fill -->
+          <div class="col-12">
+            <div class="metric-card p-3 rounded">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted">Fill Level</small>
+                  <div id="fillValue" class="metric-value">-- %</div>
                 </div>
-                <div class="mt-2" id="fillStatus"></div>
+                <div class="gauge" id="fillGauge"></div>
               </div>
-            </div>
-
-            <div class="col-12">
-              <div class="metric-card p-3 rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <small class="d-block text-muted">Gas (ppm)</small>
-                    <div id="gasValue" class="metric-value">-- ppm</div>
-                  </div>
-                  <div class="gauge" id="gasGauge"></div>
-                </div>
-                <div class="mt-2" id="gasStatus"></div>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <div class="metric-card p-3 rounded">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <small class="d-block text-muted">Weight (kg)</small>
-                    <div id="weightValue" class="metric-value">-- kg</div>
-                  </div>
-                  <div class="gauge" id="weightGauge"></div>
-                </div>
-                <div class="mt-2" id="weightStatus"></div>
-              </div>
+              <div class="mt-2" id="fillStatus"></div>
             </div>
           </div>
+
+          <!-- Gas -->
+          <div class="col-12">
+            <div class="metric-card p-3 rounded">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted">Gas (ppm)</small>
+                  <div id="gasValue" class="metric-value">-- ppm</div>
+                </div>
+                <div class="gauge" id="gasGauge"></div>
+              </div>
+              <div class="mt-2" id="gasStatus"></div>
+            </div>
+          </div>
+
+          <!-- Weight -->
+          <div class="col-12">
+            <div class="metric-card p-3 rounded">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <small class="text-muted">Weight (kg)</small>
+                  <div id="weightValue" class="metric-value">-- kg</div>
+                </div>
+                <div class="gauge" id="weightGauge"></div>
+              </div>
+              <div class="mt-2" id="weightStatus"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="col-lg-8">
+
+      <!-- GRAPH -->
+      <div class="card p-3 mb-4 shadow-sm">
+        <h6 class="mb-3">Real-time Graph</h6>
+        <canvas id="lineChart" height="120"></canvas>
+      </div>
+
+      <!-- ALERTS -->
+      <div class="card p-3 mb-3 shadow-sm">
+        <h6>Alerts</h6>
+        <ul id="alertsList" class="list-group list-group-flush"></ul>
+      </div>
+
+      <!-- ⭐ SMS STATUS -->
+      <div id="smsStatusCard" class="card p-3 mb-4 shadow-sm" style="display:none;">
+        <div class="d-flex align-items-center">
+
+          <div id="smsStatusIcon" style="font-size:28px; width:48px; text-align:center;"></div>
+
+          <div class="ms-3">
+            <div id="smsStatusTitle" style="font-weight:700;">SMS STATUS</div>
+            <div id="smsStatusText" class="text-muted">--</div>
+          </div>
+
+          <!-- 🔥 CLEANED (NO RETRY BUTTON) -->
+          <div class="ms-auto"></div>
+
         </div>
       </div>
 
-      <!-- RIGHT: Charts / Alerts / History -->
-      <div class="col-lg-8">
-
-        <div class="card p-3 mb-4 shadow-sm">
-          <h6 class="mb-3">Real-time Graph </h6>
-          <canvas id="lineChart" height="120"></canvas>
+      <!-- HISTORY -->
+      <div class="card p-3 mb-4 shadow-sm">
+        <h6>History (Last 10)</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-hover" id="historyTable">
+            <thead class="table-light">
+              <tr>
+                <th>Time</th>
+                <th>Fill %</th>
+                <th>Gas ppm</th>
+                <th>Weight kg</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
-
-        <!-- ALERTS -->
-        <div class="card p-3 mb-3 shadow-sm section-card">
-          <h6 class="section-title">Alerts</h6>
-          <ul id="alertsList" class="list-group list-group-flush"></ul>
-        </div>
-
-        <!-- ⭐ SMS STATUS BOX (UNDER ALERTS) -->
-        <div id="smsStatusCard" class="card p-3 mb-4 shadow-sm" style="display:none;">
-          <div class="d-flex align-items-center">
-            <div id="smsStatusIcon" style="font-size:28px; width:48px; text-align:center;"></div>
-            <div class="ms-3">
-              <div id="smsStatusTitle" style="font-weight:700; font-size:16px;">SMS STATUS</div>
-              <div id="smsStatusText" class="text-muted" style="font-size:14px;">--</div>
-            </div>
-            <div class="ms-auto">
-              <button id="smsRetryBtn" class="btn btn-danger btn-sm" style="display:none;">
-                <i class="fa fa-paper-plane"></i> Retry SMS
-              </button>
-            </div>
-          </div>
-        </div>
-        <!-- ⭐ END SMS STATUS -->
-
-        <div class="card p-3 mb-4 shadow-sm section-card">
-          <h6 class="section-title">History (Last 10)</h6>
-          <div class="table-responsive">
-            <table class="table table-sm table-hover" id="historyTable">
-              <thead class="table-light">
-                <tr><th>Time</th><th>Fill %</th><th>Gas ppm</th><th>Weight kg</th></tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
 
     </div>
-  </main>
 
-  <!-- Script -->
-  <script src="script.js"></script>
+  </div>
+</main>
+
+<!-- SCRIPT -->
+<script src="script.js"></script>
+
 </body>
 </html>
