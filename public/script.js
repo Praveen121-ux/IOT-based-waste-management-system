@@ -32,7 +32,7 @@ const smsStatusTitle = document.getElementById("smsStatusTitle");
 const smsStatusText = document.getElementById("smsStatusText");
 
 /********** Thresholds **********/
-const THRESH = { fill: 80, gas: 150, weight: 15 };
+const THRESH = { fill: 80, gas: 1500, weight: 15 };
 
 /********** CHART SETUP **********/
 let lineChart = null;
