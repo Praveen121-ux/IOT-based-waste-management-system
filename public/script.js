@@ -9,9 +9,6 @@ const firebaseConfig = {
   appId: "1:128147115180:web:345c66adccbae945602309",
   measurementId: "G-LB196KCCEM"
 };
-
-// ⭐ Manual SMS endpoint (your server)
-const MANUAL_SMS_URL = "https://smart-waste-server-p598.onrender.com/api/manual_sms";
 /************************************************/
 
 firebase.initializeApp(firebaseConfig);
@@ -28,12 +25,11 @@ const alertsListEl = document.getElementById("alertsList");
 const historyTbody = document.querySelector("#historyTable tbody");
 const refreshBtn = document.getElementById("refreshBtn");
 
-// ⭐ SMS status UI (matching index.html)
+// ⭐ SMS status UI
 const smsStatusCard = document.getElementById("smsStatusCard");
 const smsStatusIcon = document.getElementById("smsStatusIcon");
 const smsStatusTitle = document.getElementById("smsStatusTitle");
 const smsStatusText = document.getElementById("smsStatusText");
-const smsRetryBtn = document.getElementById("smsRetryBtn");
 
 /********** Thresholds **********/
 const THRESH = { fill: 80, gas: 150, weight: 15 };
@@ -110,7 +106,7 @@ function pushHistory(ts,fill,gas,weight){
   while(historyTbody.children.length > 10) historyTbody.removeChild(historyTbody.lastChild);
 }
 
-/********** ⭐ SMS STATUS BOX UI **********/
+/********** ⭐ UPDATED SMS STATUS UI **********/
 function updateSmsUI(status){
   if (!status || status === "none"){
     smsStatusCard.style.display = "none";
@@ -119,35 +115,23 @@ function updateSmsUI(status){
 
   smsStatusCard.style.display = "block";
 
-  if (status === "sent"){
-    smsStatusIcon.innerHTML = `<i class="fa fa-check-circle" style="color:#198754;font-size:30px;"></i>`;
-    smsStatusText.innerText = "SMS Sent Successfully";
-    smsRetryBtn.style.display = "none";
+  if (status === "sending"){
+    smsStatusIcon.innerHTML = `<i class="fa fa-spinner fa-spin" style="color:#0d6efd;font-size:30px;"></i>`;
+    smsStatusText.innerText = "Sending SMS...";
   }
-  else {
+  else if (status === "sent"){
+    smsStatusIcon.innerHTML = `<i class="fa fa-paper-plane" style="color:#0d6efd;font-size:30px;"></i>`;
+    smsStatusText.innerText = "SMS Sent (to network)";
+  }
+  else if (status === "delivered"){
+    smsStatusIcon.innerHTML = `<i class="fa fa-check-circle" style="color:#198754;font-size:30px;"></i>`;
+    smsStatusText.innerText = "SMS Delivered Successfully";
+  }
+  else if (status === "failed"){
     smsStatusIcon.innerHTML = `<i class="fa fa-exclamation-circle" style="color:#dc3545;font-size:30px;"></i>`;
-    smsStatusText.innerText = "SMS Failed — Try again";
-    smsRetryBtn.style.display = "inline-block";
+    smsStatusText.innerText = "SMS Failed";
   }
 }
-
-/********** ⭐ Manual SMS Retry Button **********/
-smsRetryBtn.addEventListener("click", async () => {
-  smsRetryBtn.disabled = true;
-  smsRetryBtn.innerText = "Sending...";
-
-  try{
-    const res = await fetch(MANUAL_SMS_URL,{ method:"POST" });
-    const data = await res.json();
-    updateSmsUI(data.smsStatus || "failed");
-  }
-  catch(err){
-    updateSmsUI("failed");
-  }
-
-  smsRetryBtn.disabled = false;
-  smsRetryBtn.innerText = "Retry SMS";
-});
 
 /********** Threshold Logic **********/
 let lastState = { fill:false, gas:false, weight:false };
@@ -213,7 +197,6 @@ function updateUIFromData(dataObj){
 
   checkThresholds(dataObj);
 
-  // ⭐ Update SMS UI (sent/failed/none)
   updateSmsUI(dataObj.smsStatus);
 }
 
