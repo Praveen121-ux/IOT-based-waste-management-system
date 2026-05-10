@@ -247,95 +247,95 @@ function updateSmsUI(status,data){
   const weightProblem =
     data.weight >= THRESH.weight;
 
-  // REMOVE ONLY WHEN NORMAL
-  if(!gasProblem && !fillProblem && !weightProblem){
+  // KEEP STATUS VISIBLE UNTIL NORMAL
+  if(gasProblem || fillProblem || weightProblem){
 
+    smsStatusCard.style.display = "block";
+
+    // ================= GAS ALERT =================
+    if(gasProblem){
+
+      smsStatusTitle.innerText =
+        "GAS ALERT";
+
+      smsStatusIcon.innerHTML =
+        `<i class="fa fa-triangle-exclamation"
+        style="color:#dc3545;font-size:30px;"></i>`;
+
+      smsStatusText.innerText =
+        `Gas Level High (${data.gas_level} ppm)`;
+
+      if(status === "sent"){
+
+        smsStatusText.innerText +=
+          " • SMS Sent";
+      }
+
+      else if(status === "failed"){
+
+        smsStatusText.innerText +=
+          " • SMS Failed";
+      }
+    }
+
+    // ================= BIN FULL =================
+    else if(fillProblem){
+
+      smsStatusTitle.innerText =
+        "BIN FULL";
+
+      smsStatusIcon.innerHTML =
+        `<i class="fa fa-trash"
+        style="color:#ffc107;font-size:30px;"></i>`;
+
+      smsStatusText.innerText =
+        "Dustbin Needs Collection";
+
+      if(status === "sent"){
+
+        smsStatusText.innerText +=
+          " • SMS Sent";
+      }
+
+      else if(status === "failed"){
+
+        smsStatusText.innerText +=
+          " • SMS Failed";
+      }
+    }
+
+    // ================= OVERWEIGHT =================
+    else if(weightProblem){
+
+      smsStatusTitle.innerText =
+        "OVERWEIGHT";
+
+      smsStatusIcon.innerHTML =
+        `<i class="fa fa-weight-scale"
+        style="color:#fd7e14;font-size:30px;"></i>`;
+
+      smsStatusText.innerText =
+        `Weight High (${data.weight} kg)`;
+
+      if(status === "sent"){
+
+        smsStatusText.innerText +=
+          " • SMS Sent";
+      }
+
+      else if(status === "failed"){
+
+        smsStatusText.innerText +=
+          " • SMS Failed";
+      }
+    }
+
+  } else {
+
+    // REMOVE ONLY WHEN BACK TO NORMAL
     smsStatusCard.style.display = "none";
-
-    return;
-  }
-
-  smsStatusCard.style.display = "block";
-
-  // ================= GAS ALERT =================
-  if(gasProblem){
-
-    smsStatusTitle.innerText =
-      "GAS ALERT";
-
-    smsStatusIcon.innerHTML =
-      `<i class="fa fa-triangle-exclamation"
-      style="color:#dc3545;font-size:30px;"></i>`;
-
-    smsStatusText.innerText =
-      `Gas Level High (${data.gas_level} ppm)`;
-
-    if(status === "sent"){
-
-      smsStatusText.innerText +=
-        " • SMS Sent";
-    }
-
-    else if(status === "failed"){
-
-      smsStatusText.innerText +=
-        " • SMS Failed";
-    }
-  }
-
-  // ================= BIN FULL =================
-  else if(fillProblem){
-
-    smsStatusTitle.innerText =
-      "BIN FULL";
-
-    smsStatusIcon.innerHTML =
-      `<i class="fa fa-trash"
-      style="color:#ffc107;font-size:30px;"></i>`;
-
-    smsStatusText.innerText =
-      "Dustbin Needs Collection";
-
-    if(status === "sent"){
-
-      smsStatusText.innerText +=
-        " • SMS Sent";
-    }
-
-    else if(status === "failed"){
-
-      smsStatusText.innerText +=
-        " • SMS Failed";
-    }
-  }
-
-  // ================= OVERWEIGHT =================
-  else if(weightProblem){
-
-    smsStatusTitle.innerText =
-      "OVERWEIGHT";
-
-    smsStatusIcon.innerHTML =
-      `<i class="fa fa-weight-scale"
-      style="color:#fd7e14;font-size:30px;"></i>`;
-
-    smsStatusText.innerText =
-      `Weight High (${data.weight} kg)`;
-
-    if(status === "sent"){
-
-      smsStatusText.innerText +=
-        " • SMS Sent";
-    }
-
-    else if(status === "failed"){
-
-      smsStatusText.innerText +=
-        " • SMS Failed";
-    }
   }
 }
-
 /********** THRESHOLD LOGIC **********/
 let lastState = {
   fill:false,
