@@ -49,7 +49,7 @@ const smsStatusText =
 const THRESH = {
   fill: 80,
   gas: 1000,
-  weight: 15
+  weight: 10
 };
 
 /********** CHART **********/
