@@ -483,11 +483,11 @@ function updateUIFromData(dataObj){
   );
 
   // WEIGHT GAUGE
-  updateGauge(
-    window.weightGauge,
-    Math.min(100,dataObj.weight*6)
-  );
-
+ updateGauge(
+  window.weightGauge,
+  Math.min(100,(dataObj.weight / 10) * 100)
+);
+  
   pushHistory(
     ts,
     dataObj.fill_level,
