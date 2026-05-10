@@ -25,17 +25,22 @@ const alertsListEl = document.getElementById("alertsList");
 const historyTbody = document.querySelector("#historyTable tbody");
 const refreshBtn = document.getElementById("refreshBtn");
 
-// ⭐ SMS status UI
+// SMS STATUS
 const smsStatusCard = document.getElementById("smsStatusCard");
 const smsStatusIcon = document.getElementById("smsStatusIcon");
 const smsStatusTitle = document.getElementById("smsStatusTitle");
 const smsStatusText = document.getElementById("smsStatusText");
 
 /********** Thresholds **********/
-const THRESH = { fill: 80, gas: 1000, weight: 15 };
+const THRESH = {
+  fill: 80,
+  gas: 1000,
+  weight: 15
+};
 
 /********** CHART SETUP **********/
 let lineChart = null;
+
 let lineData = {
   labels: [],
   datasets: [{
@@ -48,148 +53,380 @@ let lineData = {
 };
 
 function createGauge(ctx, color){
+
   return new Chart(ctx, {
-    type: 'doughnut',
-    data: { labels: ['value','rest'], datasets: [{ data: [0,100], backgroundColor: [color,'#f1f3f5'], hoverOffset:0 }] },
-    options: { cutout:'75%', plugins:{legend:{display:false}, tooltip:{enabled:false}}, animation:{duration:400} }
+
+    type:'doughnut',
+
+    data:{
+      labels:['value','rest'],
+      datasets:[{
+        data:[0,100],
+        backgroundColor:[color,'#f1f3f5'],
+        hoverOffset:0
+      }]
+    },
+
+    options:{
+      cutout:'75%',
+      plugins:{
+        legend:{display:false},
+        tooltip:{enabled:false}
+      },
+      animation:{duration:400}
+    }
   });
 }
 
 function initCharts(){
-  const ctxLine = document.getElementById('lineChart').getContext('2d');
+
+  const ctxLine =
+    document.getElementById('lineChart').getContext('2d');
+
   lineChart = new Chart(ctxLine, {
+
     type:'line',
-    data: lineData,
+
+    data:lineData,
+
     options:{
       responsive:true,
-      scales:{ y:{ min:0, max:100 } },
-      plugins:{ legend:{display:false} }
+
+      scales:{
+        y:{
+          min:0,
+          max:100
+        }
+      },
+
+      plugins:{
+        legend:{display:false}
+      }
     }
   });
 
-  window.fillGauge   = createGauge(document.createElement('canvas').getContext('2d'),'#0d6efd');
-  window.gasGauge    = createGauge(document.createElement('canvas').getContext('2d'),'#20c997');
-  window.weightGauge = createGauge(document.createElement('canvas').getContext('2d'),'#ffb703');
+  window.fillGauge =
+    createGauge(
+      document.createElement('canvas').getContext('2d'),
+      '#0d6efd'
+    );
 
-  document.getElementById('fillGauge').appendChild(window.fillGauge.canvas);
-  document.getElementById('gasGauge').appendChild(window.gasGauge.canvas);
-  document.getElementById('weightGauge').appendChild(window.weightGauge.canvas);
+  window.gasGauge =
+    createGauge(
+      document.createElement('canvas').getContext('2d'),
+      '#20c997'
+    );
+
+  window.weightGauge =
+    createGauge(
+      document.createElement('canvas').getContext('2d'),
+      '#ffb703'
+    );
+
+  document.getElementById('fillGauge')
+    .appendChild(window.fillGauge.canvas);
+
+  document.getElementById('gasGauge')
+    .appendChild(window.gasGauge.canvas);
+
+  document.getElementById('weightGauge')
+    .appendChild(window.weightGauge.canvas);
 }
 
 function updateGauge(g,val){
-  const v = Math.max(0,Math.min(100,Math.round(val)));
+
+  const v =
+    Math.max(0,Math.min(100,Math.round(val)));
+
   g.data.datasets[0].data = [v,100-v];
+
   g.update();
 }
 
-/********** Alerts **********/
+/********** ALERTS **********/
 function pushAlert(text,type){
+
   const li = document.createElement('li');
+
   li.className = 'list-group-item';
-  if(type==='danger') li.classList.add('alert-item-danger');
-  else if(type==='warn') li.classList.add('alert-item-warn');
-  else li.classList.add('alert-item-ok');
 
-  li.innerHTML = `<strong>${text}</strong>
-    <div class="text-muted small">${new Date().toLocaleString()}</div>`;
-  
+  if(type==='danger')
+    li.classList.add('alert-item-danger');
+
+  else if(type==='warn')
+    li.classList.add('alert-item-warn');
+
+  else
+    li.classList.add('alert-item-ok');
+
+  li.innerHTML = `
+    <strong>${text}</strong>
+    <div class="text-muted small">
+      ${new Date().toLocaleString()}
+    </div>
+  `;
+
   alertsListEl.prepend(li);
-  while(alertsListEl.children.length > 5) alertsListEl.removeChild(alertsListEl.lastChild);
+
+  // ONLY LAST 5 ALERTS
+  while(alertsListEl.children.length > 5){
+
+    alertsListEl.removeChild(
+      alertsListEl.lastChild
+    );
+  }
 }
 
-/********** History **********/
+/********** HISTORY **********/
 function pushHistory(ts,fill,gas,weight){
+
+  // PREVENT DUPLICATE ROWS
+  const firstRow = historyTbody.firstChild;
+
+  if(firstRow &&
+     firstRow.dataset.time == ts){
+
+    return;
+  }
+
   const tr = document.createElement('tr');
-  tr.innerHTML = `<td>${new Date(ts).toLocaleString()}</td>
-                  <td>${fill}%</td><td>${gas}</td><td>${weight}</td>`;
+
+  tr.dataset.time = ts;
+
+  tr.innerHTML = `
+    <td>${new Date(ts).toLocaleString()}</td>
+    <td>${fill}%</td>
+    <td>${gas}</td>
+    <td>${weight}</td>
+  `;
+
   historyTbody.prepend(tr);
-  while(historyTbody.children.length > 5) historyTbody.removeChild(historyTbody.lastChild);
+
+  // ONLY LAST 5 HISTORY
+  while(historyTbody.children.length > 5){
+
+    historyTbody.removeChild(
+      historyTbody.lastChild
+    );
+  }
 }
 
-/********** ⭐ UPDATED SMS STATUS UI **********/
+/********** SMS STATUS **********/
 function updateSmsUI(status){
-  if (!status || status === "none"){
+
+  if(!status || status === "none"){
+
     smsStatusCard.style.display = "none";
+
     return;
   }
 
   smsStatusCard.style.display = "block";
 
-  if (status === "sending"){
-    smsStatusIcon.innerHTML = `<i class="fa fa-spinner fa-spin" style="color:#0d6efd;font-size:30px;"></i>`;
-    smsStatusText.innerText = "Sending SMS...";
+  if(status === "sending"){
+
+    smsStatusIcon.innerHTML =
+      `<i class="fa fa-spinner fa-spin"
+      style="color:#0d6efd;font-size:30px;"></i>`;
+
+    smsStatusText.innerText =
+      "Sending SMS...";
   }
-  else if (status === "sent"){
-    smsStatusIcon.innerHTML = `<i class="fa fa-paper-plane" style="color:#0d6efd;font-size:30px;"></i>`;
-    smsStatusText.innerText = "SMS Sent (to network)";
+
+  else if(status === "sent"){
+
+    smsStatusIcon.innerHTML =
+      `<i class="fa fa-paper-plane"
+      style="color:#0d6efd;font-size:30px;"></i>`;
+
+    smsStatusText.innerText =
+      "SMS Sent";
   }
-  else if (status === "delivered"){
-    smsStatusIcon.innerHTML = `<i class="fa fa-check-circle" style="color:#198754;font-size:30px;"></i>`;
-    smsStatusText.innerText = "SMS Delivered Successfully";
+
+  else if(status === "delivered"){
+
+    smsStatusIcon.innerHTML =
+      `<i class="fa fa-check-circle"
+      style="color:#198754;font-size:30px;"></i>`;
+
+    smsStatusText.innerText =
+      "SMS Delivered";
   }
-  else if (status === "failed"){
-    smsStatusIcon.innerHTML = `<i class="fa fa-exclamation-circle" style="color:#dc3545;font-size:30px;"></i>`;
-    smsStatusText.innerText = "SMS Failed";
+
+  else if(status === "failed"){
+
+    smsStatusIcon.innerHTML =
+      `<i class="fa fa-exclamation-circle"
+      style="color:#dc3545;font-size:30px;"></i>`;
+
+    smsStatusText.innerText =
+      "SMS Failed";
   }
 }
 
-/********** Threshold Logic **********/
-let lastState = { fill:false, gas:false, weight:false };
+/********** THRESHOLD LOGIC **********/
+let lastState = {
+  fill:false,
+  gas:false,
+  weight:false
+};
 
 function checkThresholds(data){
+
   if(data.fill_level >= THRESH.fill){
-    if(!lastState.fill) pushAlert(`Fill level high (${data.fill_level}%)`,'danger');
-    lastState.fill=true;
-    document.getElementById('fillStatus').innerText='Status: FULL / Needs collection';
-  } else {
-    if(lastState.fill) pushAlert(`Fill back to safe (${data.fill_level}%)`,'ok');
-    lastState.fill=false;
-    document.getElementById('fillStatus').innerText='Status: Normal';
+
+    if(!lastState.fill){
+
+      pushAlert(
+        `Fill level high (${data.fill_level}%)`,
+        'danger'
+      );
+    }
+
+    lastState.fill = true;
+
+    document.getElementById('fillStatus')
+      .innerText='Status: FULL / Needs collection';
   }
 
+  else{
+
+    if(lastState.fill){
+
+      pushAlert(
+        `Fill back to safe (${data.fill_level}%)`,
+        'ok'
+      );
+    }
+
+    lastState.fill = false;
+
+    document.getElementById('fillStatus')
+      .innerText='Status: Normal';
+  }
+
+  // GAS
   if(data.gas_level >= THRESH.gas){
-    if(!lastState.gas) pushAlert(`High gas detected (${data.gas_level} ppm)`,'danger');
-    lastState.gas=true;
-    document.getElementById('gasStatus').innerText='Status: Dangerous';
-  } else {
-    if(lastState.gas) pushAlert(`Gas back to normal (${data.gas_level} ppm)`,'ok');
-    lastState.gas=false;
-    document.getElementById('gasStatus').innerText='Status: Normal';
+
+    if(!lastState.gas){
+
+      pushAlert(
+        `High gas detected (${data.gas_level} ppm)`,
+        'danger'
+      );
+    }
+
+    lastState.gas = true;
+
+    document.getElementById('gasStatus')
+      .innerText='Status: Dangerous';
   }
 
+  else{
+
+    if(lastState.gas){
+
+      pushAlert(
+        `Gas back to normal (${data.gas_level} ppm)`,
+        'ok'
+      );
+    }
+
+    lastState.gas = false;
+
+    document.getElementById('gasStatus')
+      .innerText='Status: Normal';
+  }
+
+  // WEIGHT
   if(data.weight >= THRESH.weight){
-    if(!lastState.weight) pushAlert(`Weight exceeded (${data.weight} kg)`,'warn');
-    lastState.weight=true;
-    document.getElementById('weightStatus').innerText='Status: Heavy';
-  } else {
-    if(lastState.weight) pushAlert(`Weight back to normal (${data.weight} kg)`,'ok');
-    lastState.weight=false;
-    document.getElementById('weightStatus').innerText='Status: Normal';
+
+    if(!lastState.weight){
+
+      pushAlert(
+        `Weight exceeded (${data.weight} kg)`,
+        'warn'
+      );
+    }
+
+    lastState.weight = true;
+
+    document.getElementById('weightStatus')
+      .innerText='Status: Heavy';
+  }
+
+  else{
+
+    if(lastState.weight){
+
+      pushAlert(
+        `Weight back to normal (${data.weight} kg)`,
+        'ok'
+      );
+    }
+
+    lastState.weight = false;
+
+    document.getElementById('weightStatus')
+      .innerText='Status: Normal';
   }
 }
 
-/********** Main Update Function **********/
+/********** MAIN UPDATE **********/
 function updateUIFromData(dataObj){
+
   if(!dataObj) return;
 
-  const ts = dataObj.timestamp || Date.now();
+  const ts =
+    dataObj.timestamp || Date.now();
 
-  fillValueEl.innerText = dataObj.fill_level + " %";
-  gasValueEl.innerText = dataObj.gas_level + " ppm";
-  weightValueEl.innerText = dataObj.weight + " kg";
-  lastSeenEl.innerText = "Last update: " + new Date(ts).toLocaleString();
+  fillValueEl.innerText =
+    dataObj.fill_level + " %";
 
-  updateGauge(window.fillGauge , dataObj.fill_level);
-  updateGauge(window.gasGauge  , Math.min(100,dataObj.gas_level/3));
-  updateGauge(window.weightGauge, Math.min(100,dataObj.weight*6));
+  gasValueEl.innerText =
+    dataObj.gas_level + " ppm";
 
-  pushHistory(ts,dataObj.fill_level,dataObj.gas_level,dataObj.weight);
+  weightValueEl.innerText =
+    dataObj.weight + " kg";
 
-  lineData.labels.push(new Date(ts).toLocaleTimeString());
-  lineData.datasets[0].data.push(dataObj.fill_level);
+  lastSeenEl.innerText =
+    "Last update: " +
+    new Date(ts).toLocaleString();
 
-  if(lineData.labels.length>60){
+  updateGauge(
+    window.fillGauge,
+    dataObj.fill_level
+  );
+
+  updateGauge(
+    window.gasGauge,
+    Math.min(100,dataObj.gas_level/3)
+  );
+
+  updateGauge(
+    window.weightGauge,
+    Math.min(100,dataObj.weight*6)
+  );
+
+  pushHistory(
+    ts,
+    dataObj.fill_level,
+    dataObj.gas_level,
+    dataObj.weight
+  );
+
+  lineData.labels.push(
+    new Date(ts).toLocaleTimeString()
+  );
+
+  lineData.datasets[0].data.push(
+    dataObj.fill_level
+  );
+
+  if(lineData.labels.length > 60){
+
     lineData.labels.shift();
+
     lineData.datasets[0].data.shift();
   }
 
@@ -200,19 +437,17 @@ function updateUIFromData(dataObj){
   updateSmsUI(dataObj.smsStatus);
 }
 
-/********** Realtime Firebase Listener **********/
+/********** FIREBASE REALTIME **********/
 db.ref(BIN_PATH).on("value", snap=>{
+
   updateUIFromData(snap.val());
 });
 
-/********** Poll Fallback **********/
-setInterval(()=>pullLatest(),1000);
+/********** REFRESH **********/
+refreshBtn.addEventListener("click",()=>{
 
-async function pullLatest(){
-  const snap = await db.ref(BIN_PATH).once("value");
-  updateUIFromData(snap.val());
-}
+  location.reload();
+});
 
-/********** Init **********/
-refreshBtn.addEventListener("click",()=>pullLatest());
+/********** INIT **********/
 initCharts();
