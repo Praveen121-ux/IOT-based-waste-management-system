@@ -333,7 +333,9 @@ function updateSmsUI(status,data){
   } else {
 
     // REMOVE ONLY WHEN BACK TO NORMAL
-    smsStatusCard.style.display = "none";
+    setTimeout(() => {
+  smsStatusCard.style.display = "none";
+}, 5000);
   }
 }
 /********** THRESHOLD LOGIC **********/
@@ -485,7 +487,7 @@ function updateUIFromData(dataObj){
   // WEIGHT GAUGE
  updateGauge(
   window.weightGauge,
-  Math.min(100,(dataObj.weight / 10) * 100)
+  Math.min(100, dataObj.weight * 10)
 );
   
   pushHistory(
