@@ -76,12 +76,12 @@ app.post('/api/data', async (req, res) => {
     }
 
     // GAS ALERT
-    if (payload.gas_level >= 150 && !state.gas) {
+    if (payload.gas_level >= 1000 && !state.gas) {
       console.log(`ALERT: Bin ${bin_id} GAS HIGH`);
       state.gas = true;
     }
 
-    if (payload.gas_level < 80) {
+    if (payload.gas_level < 900) {
       state.gas = false;
     }
 
