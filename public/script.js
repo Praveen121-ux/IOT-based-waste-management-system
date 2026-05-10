@@ -12,6 +12,7 @@ const firebaseConfig = {
 /************************************************/
 
 firebase.initializeApp(firebaseConfig);
+
 const db = firebase.database();
 
 const BIN_PATH = "bins/BIN_001";
@@ -21,24 +22,37 @@ const fillValueEl = document.getElementById("fillValue");
 const gasValueEl = document.getElementById("gasValue");
 const weightValueEl = document.getElementById("weightValue");
 const lastSeenEl = document.getElementById("lastSeen");
-const alertsListEl = document.getElementById("alertsList");
-const historyTbody = document.querySelector("#historyTable tbody");
-const refreshBtn = document.getElementById("refreshBtn");
 
-// SMS STATUS
-const smsStatusCard = document.getElementById("smsStatusCard");
-const smsStatusIcon = document.getElementById("smsStatusIcon");
-const smsStatusTitle = document.getElementById("smsStatusTitle");
-const smsStatusText = document.getElementById("smsStatusText");
+const alertsListEl =
+  document.getElementById("alertsList");
 
-/********** Thresholds **********/
+const historyTbody =
+  document.querySelector("#historyTable tbody");
+
+const refreshBtn =
+  document.getElementById("refreshBtn");
+
+/********** SMS STATUS UI **********/
+const smsStatusCard =
+  document.getElementById("smsStatusCard");
+
+const smsStatusIcon =
+  document.getElementById("smsStatusIcon");
+
+const smsStatusTitle =
+  document.getElementById("smsStatusTitle");
+
+const smsStatusText =
+  document.getElementById("smsStatusText");
+
+/********** THRESHOLDS **********/
 const THRESH = {
   fill: 80,
   gas: 1000,
   weight: 15
 };
 
-/********** CHART SETUP **********/
+/********** CHART **********/
 let lineChart = null;
 
 let lineData = {
@@ -52,9 +66,10 @@ let lineData = {
   }]
 };
 
-function createGauge(ctx, color){
+/********** CREATE GAUGE **********/
+function createGauge(ctx,color){
 
-  return new Chart(ctx, {
+  return new Chart(ctx,{
 
     type:'doughnut',
 
@@ -69,27 +84,32 @@ function createGauge(ctx, color){
 
     options:{
       cutout:'75%',
+
       plugins:{
         legend:{display:false},
         tooltip:{enabled:false}
       },
+
       animation:{duration:400}
     }
   });
 }
 
+/********** INIT CHARTS **********/
 function initCharts(){
 
   const ctxLine =
-    document.getElementById('lineChart').getContext('2d');
+    document.getElementById('lineChart')
+    .getContext('2d');
 
-  lineChart = new Chart(ctxLine, {
+  lineChart = new Chart(ctxLine,{
 
     type:'line',
 
     data:lineData,
 
     options:{
+
       responsive:true,
 
       scales:{
@@ -107,19 +127,22 @@ function initCharts(){
 
   window.fillGauge =
     createGauge(
-      document.createElement('canvas').getContext('2d'),
+      document.createElement('canvas')
+      .getContext('2d'),
       '#0d6efd'
     );
 
   window.gasGauge =
     createGauge(
-      document.createElement('canvas').getContext('2d'),
+      document.createElement('canvas')
+      .getContext('2d'),
       '#20c997'
     );
 
   window.weightGauge =
     createGauge(
-      document.createElement('canvas').getContext('2d'),
+      document.createElement('canvas')
+      .getContext('2d'),
       '#ffb703'
     );
 
@@ -133,6 +156,7 @@ function initCharts(){
     .appendChild(window.weightGauge.canvas);
 }
 
+/********** UPDATE GAUGE **********/
 function updateGauge(g,val){
 
   const v =
@@ -180,7 +204,7 @@ function pushAlert(text,type){
 /********** HISTORY **********/
 function pushHistory(ts,fill,gas,weight){
 
-  // PREVENT DUPLICATE ROWS
+  // PREVENT DUPLICATE
   const firstRow = historyTbody.firstChild;
 
   if(firstRow &&
@@ -212,9 +236,18 @@ function pushHistory(ts,fill,gas,weight){
 }
 
 /********** SMS STATUS **********/
-function updateSmsUI(status){
+function updateSmsUI(status,data){
 
-  if(!status || status === "none"){
+  const isProblem =
+
+    data.fill_level >= THRESH.fill ||
+
+    data.gas_level >= THRESH.gas ||
+
+    data.weight >= THRESH.weight;
+
+  // REMOVE WHEN NORMAL
+  if(!isProblem){
 
     smsStatusCard.style.display = "none";
 
@@ -223,44 +256,59 @@ function updateSmsUI(status){
 
   smsStatusCard.style.display = "block";
 
-  if(status === "sending"){
+  // GAS ALERT
+  if(data.gas_level >= THRESH.gas){
+
+    smsStatusTitle.innerText =
+      "GAS ALERT";
 
     smsStatusIcon.innerHTML =
-      `<i class="fa fa-spinner fa-spin"
-      style="color:#0d6efd;font-size:30px;"></i>`;
+      `<i class="fa fa-triangle-exclamation"
+      style="color:#dc3545;font-size:30px;"></i>`;
 
     smsStatusText.innerText =
-      "Sending SMS...";
+      "Dangerous Gas Detected";
   }
 
-  else if(status === "sent"){
+  // BIN FULL
+  else if(data.fill_level >= THRESH.fill){
+
+    smsStatusTitle.innerText =
+      "BIN FULL";
 
     smsStatusIcon.innerHTML =
-      `<i class="fa fa-paper-plane"
-      style="color:#0d6efd;font-size:30px;"></i>`;
+      `<i class="fa fa-trash"
+      style="color:#ffc107;font-size:30px;"></i>`;
 
     smsStatusText.innerText =
-      "SMS Sent";
+      "Dustbin Needs Collection";
   }
 
-  else if(status === "delivered"){
+  // OVERWEIGHT
+  else if(data.weight >= THRESH.weight){
+
+    smsStatusTitle.innerText =
+      "OVERWEIGHT";
 
     smsStatusIcon.innerHTML =
-      `<i class="fa fa-check-circle"
-      style="color:#198754;font-size:30px;"></i>`;
+      `<i class="fa fa-weight-scale"
+      style="color:#fd7e14;font-size:30px;"></i>`;
 
     smsStatusText.innerText =
-      "SMS Delivered";
+      "Dustbin Overloaded";
+  }
+
+  // SMS STATUS
+  if(status === "sent"){
+
+    smsStatusText.innerText +=
+      " • SMS Sent";
   }
 
   else if(status === "failed"){
 
-    smsStatusIcon.innerHTML =
-      `<i class="fa fa-exclamation-circle"
-      style="color:#dc3545;font-size:30px;"></i>`;
-
-    smsStatusText.innerText =
-      "SMS Failed";
+    smsStatusText.innerText +=
+      " • SMS Failed";
   }
 }
 
@@ -273,6 +321,7 @@ let lastState = {
 
 function checkThresholds(data){
 
+  // FILL
   if(data.fill_level >= THRESH.fill){
 
     if(!lastState.fill){
@@ -286,7 +335,8 @@ function checkThresholds(data){
     lastState.fill = true;
 
     document.getElementById('fillStatus')
-      .innerText='Status: FULL / Needs collection';
+      .innerText =
+      'Status: FULL / Needs collection';
   }
 
   else{
@@ -434,7 +484,10 @@ function updateUIFromData(dataObj){
 
   checkThresholds(dataObj);
 
-  updateSmsUI(dataObj.smsStatus);
+  updateSmsUI(
+    dataObj.smsStatus,
+    dataObj
+  );
 }
 
 /********** FIREBASE REALTIME **********/
