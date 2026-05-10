@@ -32,7 +32,7 @@ const smsStatusTitle = document.getElementById("smsStatusTitle");
 const smsStatusText = document.getElementById("smsStatusText");
 
 /********** Thresholds **********/
-const THRESH = { fill: 80, gas: 1500, weight: 15 };
+const THRESH = { fill: 80, gas: 1000, weight: 15 };
 
 /********** CHART SETUP **********/
 let lineChart = null;
@@ -94,7 +94,7 @@ function pushAlert(text,type){
     <div class="text-muted small">${new Date().toLocaleString()}</div>`;
   
   alertsListEl.prepend(li);
-  while(alertsListEl.children.length > 8) alertsListEl.removeChild(alertsListEl.lastChild);
+  while(alertsListEl.children.length > 5) alertsListEl.removeChild(alertsListEl.lastChild);
 }
 
 /********** History **********/
@@ -103,7 +103,7 @@ function pushHistory(ts,fill,gas,weight){
   tr.innerHTML = `<td>${new Date(ts).toLocaleString()}</td>
                   <td>${fill}%</td><td>${gas}</td><td>${weight}</td>`;
   historyTbody.prepend(tr);
-  while(historyTbody.children.length > 10) historyTbody.removeChild(historyTbody.lastChild);
+  while(historyTbody.children.length > 5) historyTbody.removeChild(historyTbody.lastChild);
 }
 
 /********** ⭐ UPDATED SMS STATUS UI **********/
