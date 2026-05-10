@@ -1,4 +1,6 @@
-/* === Base === */
+/* =========================
+   BASE VARIABLES
+========================= */
 :root{
   --accent:#0d6efd;
   --ok:#28a745;
@@ -7,172 +9,235 @@
   --muted:#6c757d;
 }
 
-/* === FULL SCREEN BACKGROUND FIX === */
-html, body{
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
+/* =========================
+   FULL PAGE FIX
+========================= */
+*{
+  box-sizing: border-box;
 }
 
-/* === Background Image === */
+html{
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+}
+
 body{
-  font-family: 'Poppins', sans-serif;
+  width:100%;
+  min-height:100vh;
+  margin:0;
+  padding:0;
 
-  /* Background Image */
-  background-image: url("iot.jpg");
+  font-family:'Poppins',sans-serif;
+  color:#111827;
 
-  /* FULL SCREEN COVER */
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  /* FULL SCREEN BACKGROUND */
+  background-image:url("iot.jpg");
+  background-size:cover;
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-attachment:fixed;
 
-  min-height: 100vh;
-
-  color: #111827;
-  position: relative;
+  position:relative;
+  overflow-x:hidden;
 }
 
-/* === Soft Overlay === */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,0.55);
-  pointer-events: none;
-  z-index: -1;
+/* =========================
+   OVERLAY
+========================= */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+
+  background:rgba(255,255,255,0.55);
+
+  z-index:-1;
+  pointer-events:none;
 }
 
-/* === Cards Stay Clean / Bright === */
-.card {
-  background: rgba(255,255,255,0.90);
-  backdrop-filter: blur(4px);
-  border-radius: 12px;
+/* =========================
+   NAVBAR
+========================= */
+.navbar{
+  border-bottom:1px solid rgba(0,0,0,0.06);
+
+  background:rgba(255,255,255,0.92) !important;
+
+  backdrop-filter:blur(4px);
 }
 
-/* === Navbar === */
-.navbar { 
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  background: rgba(255,255,255,0.92) !important;
-  backdrop-filter: blur(3px);
+/* =========================
+   MAIN CONTAINER
+========================= */
+main.container{
+  max-width:1200px;
+  padding-bottom:40px;
 }
 
-/* === Container spacing === */
-main.container { 
-  max-width: 1200px; 
+.row.g-4{
+  margin-top:18px;
 }
 
-.row.g-4 { 
-  margin-top: 18px; 
+/* =========================
+   CARD DESIGN
+========================= */
+.card{
+  background:rgba(255,255,255,0.90);
+
+  backdrop-filter:blur(4px);
+
+  border-radius:14px;
+
+  border:none;
+
+  box-shadow:0 8px 22px rgba(0,0,0,0.06);
 }
 
-/* === Metric card === */
-.metric-card {
-  background: linear-gradient(
+/* =========================
+   METRIC CARDS
+========================= */
+.metric-card{
+  background:linear-gradient(
     180deg,
     rgba(13,110,253,0.03),
     #ffffff
   );
 
-  border: 1px solid rgba(13,110,253,0.06);
+  border:1px solid rgba(13,110,253,0.06);
 
-  box-shadow: 0 8px 20px rgba(13,110,253,0.03);
+  box-shadow:0 8px 20px rgba(13,110,253,0.03);
 }
 
-.metric-value {
-  font-size: 44px;
-  font-weight: 800;
-  color: #0b1326;
+.metric-value{
+  font-size:44px;
+  font-weight:800;
+  color:#0b1326;
 }
 
-/* === Gauges === */
-.gauge { 
-  width: 86px; 
-  height: 86px; 
+/* =========================
+   GAUGES
+========================= */
+.gauge{
+  width:86px;
+  height:86px;
 }
 
-/* === Status === */
+/* =========================
+   STATUS TEXT
+========================= */
 #fillStatus,
 #gasStatus,
-#weightStatus {
-  font-size: 14px;
-  margin-top: 8px;
-  color: var(--muted);
+#weightStatus{
+  font-size:14px;
+  margin-top:8px;
+  color:var(--muted);
 }
 
-/* === Alerts === */
-.section-card { 
-  padding: 20px; 
+/* =========================
+   SECTION CARDS
+========================= */
+.section-card{
+  padding:20px;
 }
 
-.section-title { 
-  font-size: 18px; 
-  font-weight:600; 
-  margin-bottom: 12px; 
+.section-title{
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:12px;
 }
 
-#alertsList .list-group-item {
-  border-radius: 8px; 
-  margin-bottom: 10px;
+/* =========================
+   ALERTS
+========================= */
+#alertsList .list-group-item{
+  border-radius:8px;
+  margin-bottom:10px;
 }
 
-.alert-item-danger { 
-  background: #fff1f0; 
-  border-left: 6px solid var(--danger); 
-  color: #6d0f16; 
-  padding: 12px; 
+.alert-item-danger{
+  background:#fff1f0;
+
+  border-left:6px solid var(--danger);
+
+  color:#6d0f16;
+
+  padding:12px;
 }
 
-.alert-item-warn { 
-  background: #fff9ec; 
-  border-left: 6px solid var(--warn); 
-  color: #6d4b00; 
-  padding: 12px; 
+.alert-item-warn{
+  background:#fff9ec;
+
+  border-left:6px solid var(--warn);
+
+  color:#6d4b00;
+
+  padding:12px;
 }
 
-.alert-item-ok { 
-  background: #f0fff4; 
-  border-left: 6px solid var(--ok); 
-  color: #0b6623; 
-  padding: 12px; 
+.alert-item-ok{
+  background:#f0fff4;
+
+  border-left:6px solid var(--ok);
+
+  color:#0b6623;
+
+  padding:12px;
 }
 
-/* === History Table === */
-#historyTable td, 
-#historyTable th { 
-  vertical-align: middle;
-  background: rgba(255,255,255,0.92);
+/* =========================
+   HISTORY TABLE
+========================= */
+#historyTable td,
+#historyTable th{
+  vertical-align:middle;
+
+  background:rgba(255,255,255,0.92);
 }
 
-/* === Buttons === */
-#refreshBtn{ 
-  width: 90px; 
+/* =========================
+   BUTTONS
+========================= */
+#refreshBtn{
+  width:90px;
 }
 
-#snoozeSmsBtn { 
-  font-size: 13px; 
-}
-
-/* === SMS Status Card === */
+/* =========================
+   SMS STATUS CARD
+========================= */
 #smsStatusCard{
-  border-left: 5px solid var(--accent);
+  border-left:5px solid var(--accent);
 }
 
-/* === Responsive === */
-@media (max-width: 767px){
+/* =========================
+   CHART
+========================= */
+#lineChart{
+  width:100% !important;
+}
 
-  .metric-value { 
-    font-size: 36px; 
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width:767px){
+
+  .metric-value{
+    font-size:36px;
   }
 
-  .gauge { 
-    width: 64px; 
-    height:64px; 
+  .gauge{
+    width:64px;
+    height:64px;
   }
 
   main.container{
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left:14px;
+    padding-right:14px;
+  }
+
+  body{
+    background-position:center top;
+    background-attachment:scroll;
   }
 }
