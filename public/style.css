@@ -1,5 +1,3 @@
-
-
 /* === Base === */
 :root{
   --accent:#0d6efd;
@@ -9,29 +7,39 @@
   --muted:#6c757d;
 }
 
-/* === Background Image (Full Width + Reduced Height) === */
+/* === FULL SCREEN BACKGROUND FIX === */
+html, body{
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* === Background Image === */
 body{
   font-family: 'Poppins', sans-serif;
 
-  /* Your background image */
+  /* Background Image */
   background-image: url("iot.jpg");
 
-  /* FULL WIDTH — reduced height look */
-  background-size: 100% 750px;     /* change 320 to 250 or 400 if you want */
+  /* FULL SCREEN COVER */
+  background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
-  background-position: top center;
+  background-attachment: fixed;
 
-  margin: 0;
+  min-height: 100vh;
+
   color: #111827;
   position: relative;
 }
 
-/* Soft overlay to blend image */
+/* === Soft Overlay === */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background: rgba(255,255,255,0.55);  /* 0.55 = brighter, 0.35 = darker */
+  background: rgba(255,255,255,0.55);
   pointer-events: none;
   z-index: -1;
 }
@@ -43,42 +51,66 @@ body::before {
   border-radius: 12px;
 }
 
-/* Navbar */
+/* === Navbar === */
 .navbar { 
   border-bottom: 1px solid rgba(0,0,0,0.06);
   background: rgba(255,255,255,0.92) !important;
   backdrop-filter: blur(3px);
 }
 
-/* Container spacing */
-main.container { max-width: 1200px; }
-.row.g-4 { margin-top: 18px; }
+/* === Container spacing === */
+main.container { 
+  max-width: 1200px; 
+}
 
-/* Metric card */
+.row.g-4 { 
+  margin-top: 18px; 
+}
+
+/* === Metric card === */
 .metric-card {
-  background: linear-gradient(180deg, rgba(13,110,253,0.03), #ffffff);
+  background: linear-gradient(
+    180deg,
+    rgba(13,110,253,0.03),
+    #ffffff
+  );
+
   border: 1px solid rgba(13,110,253,0.06);
+
   box-shadow: 0 8px 20px rgba(13,110,253,0.03);
 }
+
 .metric-value {
   font-size: 44px;
   font-weight: 800;
   color: #0b1326;
 }
 
-/* Gauges */
-.gauge { width: 86px; height: 86px; }
+/* === Gauges === */
+.gauge { 
+  width: 86px; 
+  height: 86px; 
+}
 
-/* Status */
-#fillStatus,#gasStatus,#weightStatus {
+/* === Status === */
+#fillStatus,
+#gasStatus,
+#weightStatus {
   font-size: 14px;
   margin-top: 8px;
   color: var(--muted);
 }
 
-/* Alerts */
-.section-card { padding: 20px; }
-.section-title { font-size: 18px; font-weight:600; margin-bottom: 12px; }
+/* === Alerts === */
+.section-card { 
+  padding: 20px; 
+}
+
+.section-title { 
+  font-size: 18px; 
+  font-weight:600; 
+  margin-bottom: 12px; 
+}
 
 #alertsList .list-group-item {
   border-radius: 8px; 
@@ -91,12 +123,14 @@ main.container { max-width: 1200px; }
   color: #6d0f16; 
   padding: 12px; 
 }
+
 .alert-item-warn { 
   background: #fff9ec; 
   border-left: 6px solid var(--warn); 
   color: #6d4b00; 
   padding: 12px; 
 }
+
 .alert-item-ok { 
   background: #f0fff4; 
   border-left: 6px solid var(--ok); 
@@ -104,18 +138,41 @@ main.container { max-width: 1200px; }
   padding: 12px; 
 }
 
-/* History table */
-#historyTable td, #historyTable th { 
+/* === History Table === */
+#historyTable td, 
+#historyTable th { 
   vertical-align: middle;
   background: rgba(255,255,255,0.92);
 }
 
-/* Buttons */
-#refreshBtn{ width: 90px; }
-#snoozeSmsBtn { font-size: 13px; }
+/* === Buttons === */
+#refreshBtn{ 
+  width: 90px; 
+}
 
-/* Responsive */
+#snoozeSmsBtn { 
+  font-size: 13px; 
+}
+
+/* === SMS Status Card === */
+#smsStatusCard{
+  border-left: 5px solid var(--accent);
+}
+
+/* === Responsive === */
 @media (max-width: 767px){
-  .metric-value { font-size: 36px; }
-  .gauge { width: 64px; height:64px; }
+
+  .metric-value { 
+    font-size: 36px; 
+  }
+
+  .gauge { 
+    width: 64px; 
+    height:64px; 
+  }
+
+  main.container{
+    padding-left: 14px;
+    padding-right: 14px;
+  }
 }
