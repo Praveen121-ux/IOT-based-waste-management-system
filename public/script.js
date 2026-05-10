@@ -238,16 +238,17 @@ function pushHistory(ts,fill,gas,weight){
 /********** SMS STATUS **********/
 function updateSmsUI(status,data){
 
-  const isProblem =
+  const gasProblem =
+    data.gas_level >= THRESH.gas;
 
-    data.fill_level >= THRESH.fill ||
+  const fillProblem =
+    data.fill_level >= THRESH.fill;
 
-    data.gas_level >= THRESH.gas ||
-
+  const weightProblem =
     data.weight >= THRESH.weight;
 
-  // REMOVE WHEN NORMAL
-  if(!isProblem){
+  // REMOVE ONLY WHEN NORMAL
+  if(!gasProblem && !fillProblem && !weightProblem){
 
     smsStatusCard.style.display = "none";
 
@@ -256,8 +257,8 @@ function updateSmsUI(status,data){
 
   smsStatusCard.style.display = "block";
 
-  // GAS ALERT
-  if(data.gas_level >= THRESH.gas){
+  // ================= GAS ALERT =================
+  if(gasProblem){
 
     smsStatusTitle.innerText =
       "GAS ALERT";
@@ -267,11 +268,23 @@ function updateSmsUI(status,data){
       style="color:#dc3545;font-size:30px;"></i>`;
 
     smsStatusText.innerText =
-      "Dangerous Gas Detected";
+      `Gas Level High (${data.gas_level} ppm)`;
+
+    if(status === "sent"){
+
+      smsStatusText.innerText +=
+        " • SMS Sent";
+    }
+
+    else if(status === "failed"){
+
+      smsStatusText.innerText +=
+        " • SMS Failed";
+    }
   }
 
-  // BIN FULL
-  else if(data.fill_level >= THRESH.fill){
+  // ================= BIN FULL =================
+  else if(fillProblem){
 
     smsStatusTitle.innerText =
       "BIN FULL";
@@ -282,10 +295,22 @@ function updateSmsUI(status,data){
 
     smsStatusText.innerText =
       "Dustbin Needs Collection";
+
+    if(status === "sent"){
+
+      smsStatusText.innerText +=
+        " • SMS Sent";
+    }
+
+    else if(status === "failed"){
+
+      smsStatusText.innerText +=
+        " • SMS Failed";
+    }
   }
 
-  // OVERWEIGHT
-  else if(data.weight >= THRESH.weight){
+  // ================= OVERWEIGHT =================
+  else if(weightProblem){
 
     smsStatusTitle.innerText =
       "OVERWEIGHT";
@@ -295,20 +320,19 @@ function updateSmsUI(status,data){
       style="color:#fd7e14;font-size:30px;"></i>`;
 
     smsStatusText.innerText =
-      "Dustbin Overloaded";
-  }
+      `Weight High (${data.weight} kg)`;
 
-  // SMS STATUS
-  if(status === "sent"){
+    if(status === "sent"){
 
-    smsStatusText.innerText +=
-      " • SMS Sent";
-  }
+      smsStatusText.innerText +=
+        " • SMS Sent";
+    }
 
-  else if(status === "failed"){
+    else if(status === "failed"){
 
-    smsStatusText.innerText +=
-      " • SMS Failed";
+      smsStatusText.innerText +=
+        " • SMS Failed";
+    }
   }
 }
 
@@ -443,16 +467,22 @@ function updateUIFromData(dataObj){
     "Last update: " +
     new Date(ts).toLocaleString();
 
+  // FILL GAUGE
   updateGauge(
     window.fillGauge,
     dataObj.fill_level
   );
 
+  // GAS GAUGE BASED ON THRESHOLD
   updateGauge(
     window.gasGauge,
-    Math.min(100,(dataObj.gas_level / THRESH.gas) * 100)
+    Math.min(
+      100,
+      (dataObj.gas_level / THRESH.gas) * 100
+    )
   );
 
+  // WEIGHT GAUGE
   updateGauge(
     window.weightGauge,
     Math.min(100,dataObj.weight*6)
