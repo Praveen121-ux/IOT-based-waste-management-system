@@ -450,7 +450,7 @@ function updateUIFromData(dataObj){
 
   updateGauge(
     window.gasGauge,
-    Math.min(100,dataObj.gas_level/3)
+    Math.min(100,(dataObj.gas_level / THRESH.gas) * 100)
   );
 
   updateGauge(
